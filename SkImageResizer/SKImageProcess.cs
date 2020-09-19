@@ -101,16 +101,14 @@ namespace SkImageResizer
             var sourceHeight            =   imgPhoto.Height;
             var destinationWidth        =   (int)(sourceWidth * scale);
             var destinationHeight       =   (int)(sourceHeight * scale);
+ 
+                await Task.Yield();
+                using   var scaledBitmap  =   bitmap.Resize(new SKImageInfo(destinationWidth, destinationHeight),SKFilterQuality.High);
+                using   var scaledImage   =   SKImage.FromBitmap(scaledBitmap);  
 
-                await Task.Run(async ()=>
-                {
-                    using   var scaledBitmap  =   bitmap.Resize(new SKImageInfo(destinationWidth, destinationHeight),SKFilterQuality.High);
-                    using   var scaledImage   =   SKImage.FromBitmap(scaledBitmap);  
-
-                    using   var data          =   scaledImage.Encode(SKEncodedImageFormat.Jpeg, 100);
-                    using   var s             =   File.OpenWrite(Path.Combine(destPath, imgName + ".jpg"));                  
-                    await   data.AsStream().CopyToAsync(s);
-                });    
+                using   var data          =   scaledImage.Encode(SKEncodedImageFormat.Jpeg, 100);
+                using   var s             =   File.OpenWrite(Path.Combine(destPath, imgName + ".jpg"));                  
+                await   data.AsStream().CopyToAsync(s);    
         }
  
         /// <summary>
